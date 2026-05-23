@@ -11,7 +11,7 @@ const PostCreatePage = () => {
     author: { id: posts.length, username: "아기사자" },
     tags: [],
     like_users: [],
-    created_at: "2025-02-04T07:42:50.658501Z",
+    created_at: "2026-02-04T07:42:50.658501Z",
   });
 
   const [tagInputValue, setTagInputValue] = useState("");
@@ -38,7 +38,7 @@ const PostCreatePage = () => {
     setTagInputValue(e.target.value);
     if (e.target.value) {
       const autoCompleteData = tags.filter((tag) =>
-        tag.includes(e.target.value)
+        tag.includes(e.target.value),
       );
       setAutoCompletes(autoCompleteData);
     } else {
