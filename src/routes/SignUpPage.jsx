@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { signUp } from "../apis/api";
 
 const SignUpPage = () => {
   const [signUpData, setSignUpData] = useState({
@@ -15,10 +16,29 @@ const SignUpPage = () => {
     setSignUpData({ ...signUpData, [id]: value });
   };
 
-  const handleSignUpSubmit = (e) => {
+  // const handleSignUpSubmit = async (e) => {
+  //   e.preventDefault(); // to prevent reloading the page
+  //   const response = await axios.post(
+  //     "http://localhost:8000/api/account/signup/",
+  //     signUpData,
+  //     {
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       withCredentials: true,
+  //     },
+  //   );
+  //   console.log(response);
+  // };
+
+  // const handleSignUpSubmit = () => {
+  //   console.log(signUpData);
+  //   alert("회원가입 하기"); // TODO: add api call for sign up
+  // };
+
+  const handleSignUpSubmit = async (e) => {
     e.preventDefault(); // to prevent reloading the page
-    console.log(signUpData);
-    alert("회원가입 하기"); // TODO: add api call for sign up
+    signUp(signUpData);
   };
 
   return (
@@ -32,8 +52,8 @@ const SignUpPage = () => {
           required
           type="email"
           id="email"
-          className="input" 
-          value={signUpData.email} 
+          className="input"
+          value={signUpData.email}
           onChange={handleSignUpData}
         />
 
@@ -60,7 +80,6 @@ const SignUpPage = () => {
           value={signUpData.password}
           onChange={handleSignUpData}
         />
-
 
         <label htmlFor="confirm_password" className="label">
           *비밀번호 확인:
