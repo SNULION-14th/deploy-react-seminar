@@ -72,7 +72,19 @@ export const deletePost = async (id, navigate) => {
 };
 
 // 과제!!
-export const likePost = async (postId) => {};
+export const likePost = async (postId) => {
+  try {
+    const response = await instanceWithToken.post(`/post/${postId}/like/`, {});
+    if (response.status === 200 || response.status === 201) {
+      console.log("LIKE SUCCESS");
+    } else {
+      console.log("[ERROR] error while liking post");
+    }
+  } catch (error) {
+    console.error("좋아요 API 호출 중 에러 발생:", error);
+    throw error;
+  }
+};
 
 // Tag 관련 API들
 export const getTags = async () => {
@@ -116,5 +128,12 @@ export const updateComment = async (id, data) => {
   }
 };
 
-// 과제 !!
-export const deleteComment = async (id) => {};
+export const deleteComment = async (id) => {
+  const response = await instanceWithToken.delete(`/comment/${id}/`);
+  if (response.status === 204 || response.status === 200) {
+    console.log("COMMENT DELETE SUCCESS");
+    window.location.reload();
+  } else {
+    console.log("[ERROR] error while deleting comment");
+  }
+};
