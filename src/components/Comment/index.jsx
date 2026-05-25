@@ -1,26 +1,35 @@
-import { useState } from "react";
-import comments from "../../data/comments"; // dummy data
+import { useEffect, useState } from "react";
 import CommentElement from "./CommentElement";
+import { createComment, getComments, deleteComment} from "../../apis/api";
 
 const Comment = ({ postId }) => {
-    const [commentList, setCommentList] = useState(comments); // state for comments
+    const [commentList, setCommentList] = useState([]); // state for comments
     const [newContent, setNewContent] = useState(""); // state for new comment
 
-    const handleCommentSubmit = (e) => {
+    useEffect(()=>{
+        const getCommentsAPI = async() =>{
+            const comments = await getComments(postId);
+            setCommentList(comments);
+            };
+         getCommentsAPI();
+        },[postId]);
+
+    const handleCommentSubmit = async (e) => {
         e.preventDefault();
-        setCommentList([ // TODO: add api call for creating comment
-            ...commentList,
-            {
-                id: commentList.length + 1,
-                content: newContent,
-                created_at: new Date().toISOString(),
-                post: postId,
-                author: {
-                    id: 1,
-                    username: "user1"
-                }
-            }
-        ]);
+        // setCommentList([ // TODO: add api call for creating comment
+        //     ...commentList,
+        //     {
+        //         id: commentList.length + 1,
+        //         content: newContent,
+        //         created_at: new Date().toISOString(),
+        //         post: postId,
+        //         author: {
+        //             id: 1,
+        //             username: "user1"
+        //         }
+        //     }
+        // ]);
+        await createComment({post: postId, content: newContent})
         console.log({
             post: postId,
             content: newContent
@@ -29,8 +38,9 @@ const Comment = ({ postId }) => {
     };
 
     const handleCommentDelete = (commentId) => {
-        console.log("comment: ", commentId);
-        setCommentList(commentList.filter((comment) => comment.id !== commentId)); // TODO: add api call for deleting comment
+        const confirmDelete = window.confirm("delete?");
+        if(!confirmDelete) return;
+        deleteComment(commentId);
     };
 
     return (

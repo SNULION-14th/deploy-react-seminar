@@ -3,23 +3,56 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { BigPost } from "../components/Posts";
 import Comment from "../components/Comment";
 
+import { getPost, getUser, deletePost, getComments} from "../apis/api";
+import { getCookie } from "../utils/cookie";
+
 import posts from "../data/posts";
 
 const PostDetailPage = () => {
   const { postId } = useParams();
 
   const [post, setPost] = useState(null);
+    const [user, setUser] = useState();
+    const [comments, setComment] = useState();
   useEffect(() => {
-    const post = posts.find((post) => post.id === parseInt(postId));
-    setPost(post);
+    const getPostAPI = async () => {
+      const post = await getPost(postId);
+      setPost(post);
+    };
+    getPostAPI();
   }, [postId]);
+	// 작성했던 getPost()를 호출한 후, setPostList를 통해 postList에 저장
+  // 추가
+  useEffect(() => {
+    // access_token이 있으면 유저 정보 가져옴
+    if (getCookie("access_token")) {
+      const getUserAPI = async () => {
+        const user = await getUser();
+        setUser(user);
+        //console.log(user);
+      };
+      getUserAPI();
+    }
+  }, []);
+
+  useEffect(()=> {
+    const getCommentsAPI = async() => {
+      const comments = await getComments(postId);
+    }
+  })
+
 
   const navigate = useNavigate();
-  const onClickDelete = () => {
-    alert("게시물을 삭제합니다.");
-    navigate("/");
-    // add api call for deleting post
-  };
+
+  const onClickDelete = async() => {
+    const confirmDelete = window.confirm("정말 삭제하시겠습니까?");
+    if (!confirmDelete) return;
+    try {
+      await deletePost(postId, navigate);
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   return (
     post && (
@@ -27,13 +60,20 @@ const PostDetailPage = () => {
         <BigPost post={post} />
 
         <Comment postId={postId} />
-        <div className="flex flex-row gap-3">
-          <Link to={`/${post.id}/edit`}>
-            <button className="button mt-10 py-2 px-10">수정</button>
-          </Link>
-          <button className="button mt-10 py-2 px-10" onClick={onClickDelete}>
-            삭제
-          </button>
+        <div className="flex flex-row gap-3"> {user?.id === post?.author.id ? (
+            <>
+              <Link to={`/${post.id}/edit`}>
+                <button className="button mt-10 py-2 px-10">수정</button>
+              </Link>
+              <button
+                className="button mt-10 py-2 px-10"
+                onClick={onClickDelete}
+              >
+                삭제
+              </button>
+            </>
+          ) : null}
+          {/* user와 post.author가 동일하면 버튼을 리턴, 아니면 null */}
         </div>
       </div>
     )

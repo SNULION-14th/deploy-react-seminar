@@ -1,4 +1,7 @@
 import { useState } from "react";
+import axios from "axios";
+import { getCookie } from "../utils/cookie";
+import { signUp } from "../apis/api";
 
 const SignUpPage = () => {
   const [signUpData, setSignUpData] = useState({
@@ -15,11 +18,10 @@ const SignUpPage = () => {
     setSignUpData({ ...signUpData, [id]: value });
   };
 
-  const handleSignUpSubmit = (e) => {
+ const handleSignUpSubmit = async (e) => {
     e.preventDefault(); // to prevent reloading the page
-    console.log(signUpData);
-    alert("회원가입 하기"); // TODO: add api call for sign up
-  };
+    signUp(signUpData);
+  };	
 
   return (
     <div className="flex flex-col items-center w-1/2">

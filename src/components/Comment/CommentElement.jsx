@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import {getUser, updateComment} from "../../apis/api"
+import { getCookie } from "../../utils/cookie";
 
 const CommentElement = (props) => {
     const { comment, handleCommentDelete, postId } = props;
@@ -6,7 +8,7 @@ const CommentElement = (props) => {
     const [isEdit, setIsEdit] = useState(false);
 
     const [onChangeValue, setOnChangeValue] = useState(content); // 수정 취소 시 직전 content 값으로 변경을 위한 state
-
+    const [user, setUser] = useState();
     // comment created_at 전처리
     const date = new Date(comment.created_at);
     const year = date.getFullYear();
@@ -14,6 +16,18 @@ const CommentElement = (props) => {
     month = month < 10 ? `0${month}` : month;
     let day = date.getDate();
     day = day < 10 ? `0${day}` : day;
+
+    useEffect(()=>{
+        if(getCookie("access_token")){
+            const getUserAPI = async() => {
+                const user = await getUser();
+                setUser(user);
+                 console.log("user", user);         // 현재 유저
+            console.log("author", comment.author); // 댓글 작성자
+            };
+            getUserAPI();
+        }
+    },[]);
 
     const handleEditComment = () => { // add api call for editing comment
         setContent(onChangeValue);
@@ -23,6 +37,7 @@ const CommentElement = (props) => {
             comment: comment.id,
             content: content
         });
+        updateComment(comment.id, {post: postId, content: onChangeValue})
     };
 
     useEffect(() => { // add api call to check if user is the author of the comment
@@ -39,7 +54,7 @@ const CommentElement = (props) => {
 
                 <span className="text-base text-gray-300">{year}.{month}.{day}</span>
             </div>
-
+            {user?.id === comment?.author &&(
             <div className="flex flex-row items-center gap-3">
                 {isEdit ? (
                     <>
@@ -52,7 +67,8 @@ const CommentElement = (props) => {
                         <button onClick={() => setIsEdit(!isEdit)}>수정</button>
                     </>
                 )}
-            </div>
+            </div>)
+}
         </div>
     );
 };
