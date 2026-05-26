@@ -1,36 +1,42 @@
-import { useState } from "react";
-import comments from "../../data/comments"; // dummy data
+import { useEffect, useState } from "react";
 import CommentElement from "./CommentElement";
+import { createComment, deleteComment, getComments } from "../../apis/api";
+import { useNavigate } from "react-router-dom";
 
 const Comment = ({ postId }) => {
-    const [commentList, setCommentList] = useState(comments); // state for comments
+    const [commentList, setCommentList] = useState([]); // state for comments
     const [newContent, setNewContent] = useState(""); // state for new comment
+
+    const getCommentsAPI = async () => {
+        const comments = await getComments(postId);
+        setCommentList(comments);
+    }
+
+    useEffect(() => {
+        getCommentsAPI();
+    }, [postId])
+
+    const navigate = useNavigate();
 
     const handleCommentSubmit = (e) => {
         e.preventDefault();
-        setCommentList([ // TODO: add api call for creating comment
-            ...commentList,
-            {
-                id: commentList.length + 1,
-                content: newContent,
-                created_at: new Date().toISOString(),
-                post: postId,
-                author: {
-                    id: 1,
-                    username: "user1"
-                }
-            }
-        ]);
-        console.log({
+        const newComment = {
             post: postId,
             content: newContent
-        });
+        }
+        createComment(newComment);
         setNewContent("");
+        getCommentsAPI();
     };
 
-    const handleCommentDelete = (commentId) => {
-        console.log("comment: ", commentId);
-        setCommentList(commentList.filter((comment) => comment.id !== commentId)); // TODO: add api call for deleting comment
+    const handleCommentDelete = async (commentId) => {
+        const confirmDelete = window.confirm("정말 삭제하시겠습니까?");
+        if (!confirmDelete) return;
+        try {
+            await deleteComment(commentId, navigate);
+        } catch (error) {
+            console.error(error);
+        }
     };
 
     return (

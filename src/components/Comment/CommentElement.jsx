@@ -1,9 +1,13 @@
 import { useState, useEffect } from "react";
+import { getUser, updateComment, updatePost } from "../../apis/api";
+import { useNavigate } from "react-router-dom";
+import { getCookie } from "../../utils/cookie";
 
 const CommentElement = (props) => {
     const { comment, handleCommentDelete, postId } = props;
     const [content, setContent] = useState(comment.content);
     const [isEdit, setIsEdit] = useState(false);
+    const [user, setUser] = useState();
 
     const [onChangeValue, setOnChangeValue] = useState(content); // 수정 취소 시 직전 content 값으로 변경을 위한 state
 
@@ -15,14 +19,29 @@ const CommentElement = (props) => {
     let day = date.getDate();
     day = day < 10 ? `0${day}` : day;
 
-    const handleEditComment = () => { // add api call for editing comment
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        // access_token이 있으면 유저 정보 가져옴
+        if (getCookie("access_token")) {
+          const getUserAPI = async () => {
+            const user = await getUser();
+            setUser(user);
+            //console.log(user);
+          };
+          getUserAPI();
+        }
+      }, []);
+
+    const handleEditComment = async () => { // add api call for editing comment
         setContent(onChangeValue);
         setIsEdit(!isEdit);
-        console.log({
+        const newComment = {
             post: postId,
-            comment: comment.id,
-            content: content
-        });
+            content: onChangeValue
+        }
+        console.log(newComment);
+        await updateComment(comment.id, newComment, navigate);
     };
 
     useEffect(() => { // add api call to check if user is the author of the comment
@@ -41,17 +60,21 @@ const CommentElement = (props) => {
             </div>
 
             <div className="flex flex-row items-center gap-3">
-                {isEdit ? (
+                {user?.id === comment?.author ? (
                     <>
-                        <button onClick={() => { setIsEdit(!isEdit); setOnChangeValue(content); }}>취소</button>
-                        <button onClick={handleEditComment}>완료</button>
+                        {isEdit ? (
+                            <>
+                                <button onClick={() => { setIsEdit(!isEdit); setOnChangeValue(content); }}>취소</button>
+                                <button onClick={handleEditComment}>완료</button>
+                            </>
+                        ) : (
+                            <>
+                                <button onClick={() => handleCommentDelete(comment.id)}>삭제</button>
+                                <button onClick={() => setIsEdit(!isEdit)}>수정</button>
+                            </>
+                        )}
                     </>
-                ) : (
-                    <>
-                        <button onClick={() => handleCommentDelete(comment.id)}>삭제</button>
-                        <button onClick={() => setIsEdit(!isEdit)}>수정</button>
-                    </>
-                )}
+                ) : null}
             </div>
         </div>
     );

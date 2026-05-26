@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import posts from "../data/posts";
 import { BigPost } from "../components/Posts";
+import { getPost, getTags, updatePost } from "../apis/api";
+import { useNavigate } from "react-router-dom";
 
 const PostEditPage = () => {
   const { postId } = useParams();
@@ -10,30 +12,32 @@ const PostEditPage = () => {
   const [tagInputValue, setTagInputValue] = useState("");
   const [autoCompletes, setAutoCompletes] = useState([]);
   const [post, setPost] = useState({
-    id: posts.length,
     title: "",
     content: "",
-    author: { id: posts.length, username: "아기사자" },
     tags: [],
-    like_users: [],
-    created_at: "2026-02-04T07:42:50.658501Z",
   });
 
   useEffect(() => {
-    const duplicatedTagList = posts.reduce((acc, post) => {
-      for (let tag of post.tags) {
-        acc.add(tag.content);
-      }
-      return acc;
-    }, new Set());
-    const tagList = [...duplicatedTagList];
-    setTags([...tagList]);
+    const getTagsAPI = async () => {
+      const tags = await getTags();
+      const tagContents = tags.map((tag) => {
+        return tag.content;
+      });
+      setTags(tagContents);
+    };
+    getTagsAPI();
   }, []);
 
   useEffect(() => {
-    const post = posts.find((post) => post.id === parseInt(postId));
-    const originalPost = { ...post, tags: post.tags.map((tag) => tag.content) };
-    setPost(originalPost);
+    const getPostAPI = async () => {
+      const post = await getPost(postId);
+      const postFormData = {
+        ...post,
+        tags: post.tags.map((tag) => tag.content),
+      };
+      setPost(postFormData);
+    };
+    getPostAPI();
   }, [postId]);
 
   const handleChange = (e) => {
@@ -83,25 +87,14 @@ const PostEditPage = () => {
     });
   };
 
+  const navigate = useNavigate();
+
   const onSubmit = (e) => {
-    const editedPost = {
-      ...post,
-      like_users: [],
-      tags: post.tags.map((tag, idx) => {
-        return { id: idx + 1, content: tag };
-      }),
-    };
-    setPost(editedPost);
-    setIsSubmitted(true);
-    alert("게시물을 수정합니다.");
-    // TODO : api connect(edit post)
+    e.preventDefault();
+    updatePost(postId, post, navigate);
   };
 
-  return isSubmitted ? (
-    <div className="flex flex-col items-center w-[60%] p-8">
-      <BigPost post={post} />
-    </div>
-  ) : (
+  return (
     <div className="flex flex-col items-center w-3/5">
       <h3 className="font-bold text-4xl">게시글 수정</h3>
       <form className="form" onSubmit={onSubmit}>
