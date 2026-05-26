@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import { SmallPost } from "../components/Posts";
 import { Link } from "react-router-dom";
-import posts from "../data/posts";
-import { getPosts, getTags } from "../apis/api";
+import { getPosts, getTags, getUser } from "../apis/api";
 import { getCookie } from "../utils/cookie";
 
 const HomePage = () => {
@@ -10,6 +9,8 @@ const HomePage = () => {
   const [tags, setTags] = useState([]);
   const [searchTags, setSearchTags] = useState([]);
   const [searchValue, setSearchValue] = useState("");
+  const [user, setUser] = useState(null);
+
   useEffect(() => {
     const getPostsAPI = async () => {
       const posts = await getPosts();
@@ -27,6 +28,14 @@ const HomePage = () => {
     getTagsAPI();
     // getTags() 이용해서 tag들 불러오고 tags.map을 이용해서 tagContents에
     // tag.content만 저장한 후, tags와 searchTags에 저장
+
+    const getUserAPI = async () => {
+      if (!getCookie("access_token")) return;
+
+      const user = await getUser();
+      setUser(user);
+    };
+    getUserAPI();
   }, []);
 
   const handleChange = (e) => {
@@ -78,7 +87,7 @@ const HomePage = () => {
               : post,
           )
           .map((post) => (
-            <SmallPost key={post.id} post={post} />
+            <SmallPost key={post.id} post={post} user={user} />
           ))}
       </div>
       {getCookie("access_token") ? (

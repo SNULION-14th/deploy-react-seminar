@@ -1,10 +1,12 @@
 import { Link } from "react-router-dom";
+import { likePost } from "../../apis/api";
 
-export const SmallPost = ({ post }) => {
-  const onClickLike = (e) => {
-    e.preventDefault(); // Link 클릭 이벤트 막기
-    alert("나도 좋아!");
-    // add api call for liking post here
+export const SmallPost = ({ post, user }) => {
+  const isLiked = post.like_users?.some((likeUser) => likeUser === user?.id);
+
+  const onClickLike = async (e) => {
+    e.preventDefault();
+    await likePost(post.id);
   };
 
   return (
@@ -26,16 +28,17 @@ export const SmallPost = ({ post }) => {
         className="bg-transparent border-none cursor-pointer"
         onClick={onClickLike}
       >
-        ❤️ {post.like_users.length}
+        {isLiked ? "❤️" : "🤍"} {post.like_users.length}
       </button>
     </Link>
   );
 };
 
-export const BigPost = ({ post }) => {
-  const onClickLike = () => {
-    alert("나도 좋아!");
-    // add api call for liking post here
+export const BigPost = ({ post, user }) => {
+  const isLiked = post.like_users?.some((likeUser) => likeUser === user?.id);
+
+  const onClickLike = async () => {
+    await likePost(post.id);
   };
 
   return (
@@ -64,7 +67,7 @@ export const BigPost = ({ post }) => {
         className="self-start text-black bg-transparent border-none cursor-pointer mt-2"
         onClick={onClickLike}
       >
-        ❤️ {post.like_users.length}
+        {isLiked ? "❤️" : "🤍"} {post.like_users.length}
       </button>
     </div>
   );

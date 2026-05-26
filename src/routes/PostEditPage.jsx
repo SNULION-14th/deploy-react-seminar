@@ -1,13 +1,11 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import posts from "../data/posts";
 import { BigPost } from "../components/Posts";
 import { getTags, getPost, updatePost } from "../apis/api";
 import { useNavigate } from "react-router-dom";
 
 const PostEditPage = () => {
   const { postId } = useParams();
-  const [isSubmitted, setIsSubmitted] = useState(false);
   const [tags, setTags] = useState([]);
   const [tagInputValue, setTagInputValue] = useState("");
   const [autoCompletes, setAutoCompletes] = useState([]);

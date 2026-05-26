@@ -49,7 +49,7 @@ const PostDetailPage = () => {
   return (
     post && (
       <div className="flex flex-col items-center w-[60%] p-8">
-        <BigPost post={post} />
+        <BigPost post={post} user={user} />
 
         <Comment postId={postId} user={user} />
         <div className="flex flex-row gap-3">

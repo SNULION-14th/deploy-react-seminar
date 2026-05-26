@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import posts from "../data/posts";
 import { BigPost } from "../components/Posts";
 import { useNavigate } from "react-router-dom";
 import { getTags, createPost } from "../apis/api";
