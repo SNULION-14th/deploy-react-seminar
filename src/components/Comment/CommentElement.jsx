@@ -1,59 +1,82 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { updateComment } from "../../apis/api";
 
-const CommentElement = (props) => {
-    const { comment, handleCommentDelete, postId } = props;
-    const [content, setContent] = useState(comment.content);
-    const [isEdit, setIsEdit] = useState(false);
+const CommentElement = ({ comment, handleCommentDelete, postId, user }) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editContent, setEditContent] = useState(comment.content);
 
-    const [onChangeValue, setOnChangeValue] = useState(content); // 수정 취소 시 직전 content 값으로 변경을 위한 state
+  // 댓글 수정 (PUT API)
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    await updateComment(comment.id, {
+      post: postId,
+      content: editContent,
+    });
+    setIsEditing(false);
+  };
 
-    // comment created_at 전처리
-    const date = new Date(comment.created_at);
-    const year = date.getFullYear();
-    let month = date.getMonth() + 1;
-    month = month < 10 ? `0${month}` : month;
-    let day = date.getDate();
-    day = day < 10 ? `0${day}` : day;
+  // 작성자 정보를 객체로 주든, 숫자로 주든 커버
+  const authorName = comment.author.username
+    ? comment.author.username
+    : `User ${comment.author}`;
 
-    const handleEditComment = () => { // add api call for editing comment
-        setContent(onChangeValue);
-        setIsEdit(!isEdit);
-        console.log({
-            post: postId,
-            comment: comment.id,
-            content: content
-        });
-    };
+  const authorId = comment.author.id ? comment.author.id : comment.author;
 
-    useEffect(() => { // add api call to check if user is the author of the comment
-    }, []);
+  return (
+    <div className="flex flex-col w-full p-4 border-b border-gray-300">
+      <div className="flex flex-row justify-between items-center mb-2">
+        <span className="font-bold text-lg">{authorName}</span>
+        <span className="text-sm text-gray-500">
+          {comment.created_at.slice(0, 10)}
+        </span>
+      </div>
 
-    return (
-        <div className="w-full flex flex-row justify-between items-center mb-5">
-            <div className="w-3/4 flex flex-col gap-1">
-                {isEdit ? (
-                    <input className="input mb-2" value={onChangeValue} onChange={(e) => setOnChangeValue(e.target.value)} />
-                ) : (
-                    <p className="text-lg">{content}</p>
-                )}
+      {isEditing ? (
+        // 수정 모드일 때 보여질 폼
+        <form className="flex flex-row gap-3 mt-2" onSubmit={handleEditSubmit}>
+          <input
+            type="text"
+            value={editContent}
+            onChange={(e) => setEditContent(e.target.value)}
+            className="input grow"
+          />
+          <button type="submit" className="small-button">
+            완료
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsEditing(false)}
+            className="small-button bg-gray-500"
+          >
+            취소
+          </button>
+        </form>
+      ) : (
+        // 일반 모드일 때 보여질 텍스트 및 버튼
+        <div className="flex flex-row justify-between items-center">
+          <p className="text-base">{comment.content}</p>
 
-                <span className="text-base text-gray-300">{year}.{month}.{day}</span>
+          {/* 로그인한 유저 id와 댓글 작성자의 id가 같을 때만 버튼 노출 */}
+          {user?.id === authorId && (
+            <div className="flex gap-2">
+              <button
+                onClick={() => setIsEditing(true)}
+                className="small-button"
+              >
+                수정
+              </button>
+              <button
+                onClick={() => handleCommentDelete(comment.id)}
+                className="small-button"
+              >
+                삭제
+              </button>
             </div>
-
-            <div className="flex flex-row items-center gap-3">
-                {isEdit ? (
-                    <>
-                        <button onClick={() => { setIsEdit(!isEdit); setOnChangeValue(content); }}>취소</button>
-                        <button onClick={handleEditComment}>완료</button>
-                    </>
-                ) : (
-                    <>
-                        <button onClick={() => handleCommentDelete(comment.id)}>삭제</button>
-                        <button onClick={() => setIsEdit(!isEdit)}>수정</button>
-                    </>
-                )}
-            </div>
+          )}
         </div>
-    );
+      )}
+    </div>
+  );
 };
+
 export default CommentElement;
