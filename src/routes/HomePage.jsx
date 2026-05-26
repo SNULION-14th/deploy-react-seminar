@@ -2,21 +2,32 @@ import { useState, useEffect } from "react";
 import { SmallPost } from "../components/Posts";
 import { Link } from "react-router-dom";
 import posts from "../data/posts";
+import axios from "axios";
+import { getPosts, getTags } from "../apis/api";
+import { getCookie } from "../utils/cookie";
 
 const HomePage = () => {
-  const [postList, setPostList] = useState(posts);
+  const [postList, setPostList] = useState([]);
   const [tags, setTags] = useState([]);
   const [searchTags, setSearchTags] = useState([]);
   const [searchValue, setSearchValue] = useState("");
   useEffect(() => {
-    const tagList = posts.reduce((acc, post) => {
-      for (let tag of post.tags) {
-        acc.add(tag.content);
-      }
-      return acc;
-    }, new Set());
-    setTags([...tagList]);
-    setSearchTags([...tagList]);
+    const getPostsAPI = async () => {
+      const posts = await getPosts();
+      setPostList(posts);
+    };
+    getPostsAPI();
+    const getTagsAPI = async () => {
+      const tags = await getTags();
+      const tagContents = tags.map((tag) => {
+        return tag.content;
+      });
+      setTags(tagContents);
+      setSearchTags(tagContents);
+    };
+    getTagsAPI();
+    // getTags() 이용해서 tag들 불러오고 tags.map을 이용해서 tagContents에
+    // tag.content만 저장한 후, tags와 searchTags에 저장
   }, []);
 
   const handleChange = (e) => {
@@ -24,20 +35,17 @@ const HomePage = () => {
     const newTags = tags.filter((tag) => tag.includes(value));
     setSearchTags(newTags);
   };
+  // 수정
   const handleTagFilter = (e) => {
     const { innerText } = e.target;
     if (searchValue === innerText.substring(1)) {
       setSearchValue("");
-      setPostList(posts);
     } else {
       const activeTag = innerText.substring(1);
       setSearchValue(activeTag);
-      const newPosts = posts.filter((post) =>
-        post.tags.find((tag) => tag.content === activeTag)
-      );
-      setPostList(newPosts);
     }
   };
+  // 태그를 눌렀을 때는 searchValue만 바뀜
 
   return (
     <div>
@@ -65,16 +73,24 @@ const HomePage = () => {
           );
         })}
       </div>
-      <div className="grid grid-cols-3 px-10 mt-10">
-        {postList.map((post) => (
-          <SmallPost key={post.id} post={post} />
-        ))}
+      <div className="grid grid-cols-4 px-10 mt-10">
+        {postList
+          .filter((post) =>
+            searchValue
+              ? post.tags.find((tag) => tag.content === searchValue)
+              : post,
+          )
+          .map((post) => (
+            <SmallPost key={post.id} post={post} />
+          ))}
       </div>
-      <div className="flex justify-center m-20">
-        <Link className="button" to="/create">
-          작성
-        </Link>
-      </div>
+      {getCookie("access_token") ? (
+        <div className="flex justify-center m-20">
+          <Link className="button" to="/create">
+            작성
+          </Link>
+        </div>
+      ) : null}
     </div>
   );
 };
