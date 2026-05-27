@@ -1,10 +1,13 @@
 import { Link } from "react-router-dom";
+import { likePost } from "../../apis/api";
+
 
 export const SmallPost = ({ post }) => {
-  const onClickLike = () => {
-    alert("나도 좋아!");
-    // add api call for liking post here
+  const onClickLike = (e) => {
+    e.preventDefault();
+    likePost(post.id);
   };
+
   return (
     <Link
       to={`/${post.id}`}
@@ -19,18 +22,22 @@ export const SmallPost = ({ post }) => {
           </span>
         ))}
       </div>
-      <div className="cursor-pointer" onClick={onClickLike}>
-        {post.like_users.length > 0 && `❤️ ${post.like_users.length}`}
-      </div>
+      <button
+        type="button"
+        className="bg-transparent border-none cursor-pointer"
+        onClick={onClickLike}
+      >
+        ❤️ {post.like_users.length}
+      </button>
     </Link>
   );
 };
 
 export const BigPost = ({ post }) => {
   const onClickLike = () => {
-    alert("나도 좋아!");
-    // add api call for liking post here
+    likePost(post.id);
   };
+
   return (
     <div className="flex flex-col px-8 py-5 w-full bg-orange-400 ring-4 ring-orange-300 rounded-xl gap-5">
       <div className="flex flex-row items-center justify-between gap-3">
@@ -41,11 +48,9 @@ export const BigPost = ({ post }) => {
           {post.created_at.slice(0, 10)}
         </span>
       </div>
-
-      <div className=" rounded-xl p-2 text-black font-medium text-lg border-2 border-black">
+      <div className="rounded-xl p-2 text-black font-medium text-lg border-2 border-black">
         {post.content}
       </div>
-
       <div className="flex flex-row gap-2">
         {post.tags &&
           post.tags.map((tag) => (
@@ -54,13 +59,13 @@ export const BigPost = ({ post }) => {
             </span>
           ))}
       </div>
-
-      <div
-        className="flex flex-row text-black cursor-pointer"
+      <button
+        type="button"
+        className="self-start text-black bg-transparent border-none cursor-pointer mt-2"
         onClick={onClickLike}
       >
-        {post.like_users.length > 0 && `❤️ ${post.like_users.length}`}
-      </div>
+        ❤️ {post.like_users.length}
+      </button>
     </div>
   );
 };

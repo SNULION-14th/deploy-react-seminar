@@ -56,7 +56,13 @@ export const updatePost = async (id, data, navigate) => {
 
 // 과제!!
 export const likePost = async (postId) => {
-
+    const response = await instanceWithToken.post(`/post/${postId}/like/`);
+    if (response.status === 200) {
+    console.log("LIKE SUCCESS");
+    window.location.reload();
+    } else {
+    console.log("[ERROR] error while liking post");
+    }
 };
 
 // 추가 
@@ -106,7 +112,13 @@ export const updateComment = async (id, data) => {
 
 // 과제 !!
 export const deleteComment = async (id) => {
-
+    const response = await instanceWithToken.delete(`/comment/${id}/`);
+    if (response.status === 204) {
+    console.log("COMMENT DELETE SUCCESS");
+    window.location.reload();
+    } else {
+    console.log("[ERROR] error while deleting comment");
+    }
 };
 
 export const getUser = async () => {
