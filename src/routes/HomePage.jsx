@@ -11,27 +11,11 @@ const HomePage = () => {
   const [searchTags, setSearchTags] = useState([]);
   const [searchValue, setSearchValue] = useState("");
   useEffect(() => {
-    // const getPostAPI = async () => {
-    //   const response = await axios.get("http://localhost:8000/api/post/");
-    //   console.log(response);
-    // };
-    // getPostAPI();
-
     const getPostsAPI = async () => {
       const posts = await getPosts();
       setPostList(posts);
     };
     getPostsAPI();
-
-    //   const tagList = posts.reduce((acc, post) => {
-    //     for (let tag of post.tags) {
-    //       acc.add(tag.content);
-    //     }
-    //     return acc;
-    //   }, new Set());
-    //   setTags([...tagList]);
-    //   setSearchTags([...tagList]);
-    // }, []);
 
     const getTagsAPI = async () => {
       const tags = await getTags();

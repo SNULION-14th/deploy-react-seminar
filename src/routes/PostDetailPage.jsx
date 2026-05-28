@@ -5,7 +5,7 @@ import Comment from "../components/Comment";
 import { getPost, getUser, deletePost } from "../apis/api";
 import { getCookie } from "../utils/cookie";
 
-import posts from "../data/posts";
+// import posts from "../data/posts";
 
 const PostDetailPage = () => {
   const { postId } = useParams();
@@ -20,25 +20,20 @@ const PostDetailPage = () => {
     getPostAPI();
   }, [postId]);
 
-  useEffect(() => {
-    // access_token이 있으면 유저 정보 가져옴
-    if (getCookie("access_token")) {
-      const getUserAPI = async () => {
-        const user = await getUser();
-        setUser(user);
-        //console.log(user);
-      };
-      getUserAPI();
-    }
-  }, []);
-  // 처음 한번만 실행
+  // useEffect(() => {
+  //   // access_token이 있으면 유저 정보 가져옴
+  //   if (getCookie("access_token")) {
+  //     const getUserAPI = async () => {
+  //       const user = await getUser();
+  //       setUser(user);
+  //       //console.log(user);
+  //     };
+  //     getUserAPI();
+  //   }
+  // }, []);
+  // // 처음 한번만 실행
 
   const navigate = useNavigate();
-  // const onClickDelete = () => {
-  //   alert("게시물을 삭제합니다.");
-  //   navigate("/");
-  //   // add api call for deleting post
-  // };
 
   const onClickDelete = async () => {
     const confirmDelete = window.confirm("정말 삭제하시겠습니까?");
@@ -54,7 +49,6 @@ const PostDetailPage = () => {
     post && (
       <div className="flex flex-col items-center w-[60%] p-8">
         <BigPost post={post} />
-
         <Comment postId={postId} />
         <div className="flex flex-row gap-3">
           {user?.id === post?.author.id ? (
