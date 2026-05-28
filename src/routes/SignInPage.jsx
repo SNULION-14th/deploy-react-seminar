@@ -1,4 +1,6 @@
 import { useState } from "react";
+import axios from "axios";
+import { signIn } from "../apis/api";
 
 const SignInPage = () => {
   const [signInData, setSignInData] = useState({
@@ -11,10 +13,9 @@ const SignInPage = () => {
     setSignInData({ ...signInData, [id]: value });
   };
 
-  const handleSignInSubmit = () => {
-    console.log(signInData);
-    alert("로그인 완 료!");
-    // add api call for sign in here
+  const handleSignInSubmit = async (e) => {
+    e.preventDefault();
+    signIn(signInData);
   };
 
   return (
