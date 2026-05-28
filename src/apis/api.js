@@ -20,6 +20,7 @@ export const signUp = async (data) => {
   return response;
 };
 
+//Post 관련 API
 // 추가
 export const getPosts = async () => {
   const response = await instance.get("/post/");
@@ -102,12 +103,26 @@ export const getComments = async (postId) => {
 };
 
 export const createComment = async (data) => {
-  const response = await instanceWithToken.post("/comment/", data);
-  if (response.status === 201) {
-    console.log("COMMENT SUCCESS");
-    window.location.reload(); // 새로운 코멘트 생성시 새로고침으로 반영
-  } else {
-    console.log("[ERROR] error while creating comment");
+  try {
+    console.log("COMMENT REQUEST DATA:", data);
+
+    const response = await instanceWithToken.post("/comment/", data);
+
+    if (response.status === 201) {
+      console.log("COMMENT SUCCESS");
+      window.location.reload();
+    }
+
+    return response.data;
+  } catch (error) {
+    console.log("COMMENT CREATE ERROR");
+    console.log("status:", error.response?.status);
+    console.log("data:", error.response?.data);
+    console.log("data detail:", JSON.stringify(error.response?.data, null, 2));
+
+    alert(error.response?.data?.message || "댓글 작성에 실패했습니다.");
+
+    throw error;
   }
 };
 
@@ -122,4 +137,15 @@ export const updateComment = async (id, data) => {
 };
 
 // 과제 !!
-export const deleteComment = async (id) => {};
+export const deleteComment = async (id) => {
+  try {
+    const response = await instanceWithToken.delete(`/comment/${id}/`);
+
+    if (response.status === 204) {
+      console.log("Comment Delete Success");
+      window.location.reload();
+    }
+  } catch (error) {
+    console.log("[ERROR] error while deleting comment");
+  }
+};

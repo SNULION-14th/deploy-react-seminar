@@ -2,15 +2,25 @@ import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { BigPost } from "../components/Posts";
 import Comment from "../components/Comment";
-import { deletePost, getPost, getUser } from "../apis/api";
+import { deletePost, getComments, getPost, getUser } from "../apis/api";
 
-import posts from "../data/posts";
 import { getCookie } from "../utils/cookies";
 
 const PostDetailPage = () => {
   const { postId } = useParams();
 
   const [post, setPost] = useState(null);
+
+  const [commentList, setCommentList] = useState([]);
+
+  useEffect(() => {
+    const getCommentsAPI = async () => {
+      const comments = await getComments(postId);
+      console.log("백엔드에서 받아온 댓글:", comments);
+      setCommentList(comments);
+    };
+    getCommentsAPI();
+  }, [postId]);
 
   // 추가
   const [user, setUser] = useState();
@@ -24,13 +34,17 @@ const PostDetailPage = () => {
   // 작성했던 getPost()를 호출한 후, setPostList를 통해 postList에 저장
   // 추가
   useEffect(() => {
-    // access_token이 있으면 유저 정보 가져옴
     if (getCookie("access_token")) {
       const getUserAPI = async () => {
-        const user = await getUser();
-        setUser(user);
-        //console.log(user);
+        try {
+          const user = await getUser();
+          setUser(user);
+        } catch (error) {
+          console.log("로그인하지 않은 사용자입니다.");
+          setUser(null);
+        }
       };
+
       getUserAPI();
     }
   }, []);
@@ -52,7 +66,12 @@ const PostDetailPage = () => {
       <div className="flex flex-col items-center w-[60%] p-8">
         <BigPost post={post} />
 
-        <Comment postId={postId} />
+        <Comment
+          postId={postId}
+          commentList={commentList}
+          setCommentList={setCommentList}
+          user={user}
+        />
         <div className="flex flex-row gap-3">
           {user?.id === post?.author.id ? (
             <>

@@ -11,6 +11,7 @@ const HomePage = () => {
   const [tags, setTags] = useState([]);
   const [searchTags, setSearchTags] = useState([]);
   const [searchValue, setSearchValue] = useState("");
+
   useEffect(() => {
     const getPostsAPI = async () => {
       const posts = await getPosts();

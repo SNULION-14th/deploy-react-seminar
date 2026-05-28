@@ -20,6 +20,7 @@ const PostCreatePage = () => {
   const [tags, setTags] = useState([]);
 
   const navigate = useNavigate();
+
   //추가
   useEffect(() => {
     const getTagsAPI = async () => {
