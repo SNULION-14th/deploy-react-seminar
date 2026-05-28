@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { signUp } from "../apis/api";
 
 const SignUpPage = () => {
   const [signUpData, setSignUpData] = useState({
@@ -15,15 +16,28 @@ const SignUpPage = () => {
     setSignUpData({ ...signUpData, [id]: value });
   };
 
-  const handleSignUpSubmit = (e) => {
-    e.preventDefault(); // to prevent reloading the page
+  const handleSignUpSubmit = async (e) => {
+    e.preventDefault();
+
     console.log(signUpData);
-    alert("회원가입 하기"); // TODO: add api call for sign up
+    await signUp(signUpData);
+  };
+
+  const handleReset = () => {
+    setSignUpData({
+      email: "",
+      password: "",
+      confirm_password: "",
+      username: "",
+      college: "",
+      major: "",
+    });
   };
 
   return (
     <div className="flex flex-col items-center w-1/2">
       <h3 className="font-bold text-2xl">회원가입</h3>
+
       <form className="form gap-2" onSubmit={handleSignUpSubmit}>
         <label htmlFor="email" className="label">
           *이메일:
@@ -32,12 +46,12 @@ const SignUpPage = () => {
           required
           type="email"
           id="email"
-          className="input" 
-          value={signUpData.email} 
+          className="input"
+          value={signUpData.email}
           onChange={handleSignUpData}
         />
 
-        <label required htmlFor="username" className="label">
+        <label htmlFor="username" className="label">
           *유저 이름:
         </label>
         <input
@@ -61,7 +75,6 @@ const SignUpPage = () => {
           onChange={handleSignUpData}
         />
 
-
         <label htmlFor="confirm_password" className="label">
           *비밀번호 확인:
         </label>
@@ -75,7 +88,7 @@ const SignUpPage = () => {
         />
 
         <label htmlFor="college" className="label">
-          대학:{" "}
+          대학:
         </label>
         <input
           type="text"
@@ -86,7 +99,7 @@ const SignUpPage = () => {
         />
 
         <label htmlFor="major" className="label">
-          전공:{" "}
+          전공:
         </label>
         <input
           type="text"
@@ -97,7 +110,7 @@ const SignUpPage = () => {
         />
 
         <div className="flex flex-row items-center gap-5">
-          <button type="reset" className="button mt-7">
+          <button type="button" className="button mt-7" onClick={handleReset}>
             초기화
           </button>
           <button type="submit" className="button mt-7">

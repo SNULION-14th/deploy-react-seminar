@@ -1,33 +1,32 @@
 import { useState, useEffect } from "react";
-import posts from "../data/posts";
-import { BigPost } from "../components/Posts";
+import { useNavigate } from "react-router-dom";
+import { getTags, createPost } from "../apis/api";
 
 const PostCreatePage = () => {
-  const [isSubmitted, setIsSubmitted] = useState(false);
   const [post, setPost] = useState({
-    id: posts.length,
     title: "",
     content: "",
-    author: { id: posts.length, username: "아기사자" },
     tags: [],
-    like_users: [],
-    created_at: "2026-02-04T07:42:50.658501Z",
   });
 
   const [tagInputValue, setTagInputValue] = useState("");
-
   const [autoCompletes, setAutoCompletes] = useState([]);
-
   const [tags, setTags] = useState([]);
+
+  const navigate = useNavigate();
+
   useEffect(() => {
-    const duplicatedTagList = posts.reduce((acc, post) => {
-      for (let tag of post.tags) {
-        acc.add(tag.content);
-      }
-      return acc;
-    }, new Set());
-    const tagList = [...duplicatedTagList];
-    setTags([...tagList]);
+    const getTagsAPI = async () => {
+      const tags = await getTags();
+
+      const tagContents = tags.map((tag) => {
+        return tag.content;
+      });
+
+      setTags(tagContents);
+    };
+
+    getTagsAPI();
   }, []);
 
   const handleChange = (e) => {
@@ -36,9 +35,10 @@ const PostCreatePage = () => {
 
   const handleTag = (e) => {
     setTagInputValue(e.target.value);
+
     if (e.target.value) {
       const autoCompleteData = tags.filter((tag) =>
-        tag.includes(e.target.value),
+        tag.includes(e.target.value)
       );
       setAutoCompletes(autoCompleteData);
     } else {
@@ -48,20 +48,23 @@ const PostCreatePage = () => {
 
   const handleAutoCompletes = (autoComplete) => {
     const selectedTag = tags.find((tag) => tag === autoComplete);
+
     if (post.tags.includes(selectedTag)) return;
+
     setPost({
       ...post,
       tags: [...post.tags, selectedTag],
     });
+
     setTagInputValue("");
     setAutoCompletes([]);
   };
 
-  // 추가 버튼 혹은 엔터 누르면 태그 생성
   const addTag = (e) => {
     e.preventDefault();
 
-    // 입력한 내용이 이미 등록된 태그면 그냥 등록 안됨
+    if (!tagInputValue) return;
+
     if (post.tags.find((tag) => tag === tagInputValue)) return;
 
     setPost({
@@ -82,26 +85,13 @@ const PostCreatePage = () => {
 
   const onSubmit = (e) => {
     e.preventDefault();
-    const createdPost = {
-      ...post,
-      like_users: [],
-      tags: post.tags.map((tag, idx) => {
-        return { id: idx + 1, content: tag };
-      }),
-    };
-    setPost(createdPost);
-    setIsSubmitted(true);
-    alert("게시글을 등록합니다.");
-    //TODO : api connect
+    createPost(post, navigate);
   };
 
-  return isSubmitted ? (
-    <div className="flex flex-col items-center w-[60%] p-8">
-      <BigPost post={post} />
-    </div>
-  ) : (
+  return (
     <div className="flex flex-col items-center w-3/5">
       <h3 className="font-bold text-4xl">게시글 작성</h3>
+
       <form className="form" onSubmit={onSubmit}>
         <label htmlFor="title" className="label">
           제목
@@ -115,6 +105,7 @@ const PostCreatePage = () => {
           onChange={handleChange}
           required
         />
+
         <label htmlFor="content" className="label">
           내용
         </label>
@@ -128,11 +119,13 @@ const PostCreatePage = () => {
           onChange={handleChange}
           required
         ></textarea>
+
         <label htmlFor="tags" className="label">
           태그
         </label>
+
         <div className="flex w-full flex-col">
-          <div className="flex  w-full gap-x-5">
+          <div className="flex w-full gap-x-5">
             <input
               type="text"
               placeholder="태그를 추가하세요"
@@ -141,15 +134,17 @@ const PostCreatePage = () => {
               onChange={handleTag}
               className="input grow"
             />
-            <button onClick={addTag} className="small-button w-16">
+            <button type="button" onClick={addTag} className="small-button w-16">
               추가
             </button>
           </div>
         </div>
+
         <div className="flex mt-2 bg-black border-gray-500 rounded-2xl w-full">
           {autoCompletes &&
             autoCompletes.map((autoComplete) => (
               <button
+                type="button"
                 className="tag rounded-2xl text-start border-gray-500 py-2 px-3 text-white focus:bg-gray"
                 key={autoComplete}
                 onClick={() => handleAutoCompletes(autoComplete)}
@@ -158,6 +153,7 @@ const PostCreatePage = () => {
               </button>
             ))}
         </div>
+
         {post.tags && (
           <div className="flex w-full mt-3 gap-x-1 flew-nowrap">
             {post.tags.map((tag) => (
@@ -166,13 +162,17 @@ const PostCreatePage = () => {
                   <p>#{tag}</p>
                 </span>
                 <button
-                  className="after:content-['\00d7'] text-xl"
+                  type="button"
+                  className="text-xl"
                   onClick={() => deleteTag(tag)}
-                />
+                >
+                  ×
+                </button>
               </div>
             ))}
           </div>
         )}
+
         <button type="submit" className="button mt-7">
           완료
         </button>
