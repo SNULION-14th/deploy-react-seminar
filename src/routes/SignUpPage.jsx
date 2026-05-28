@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
+import { signUp } from "../apis/api";
 
 const SignUpPage = () => {
   const [signUpData, setSignUpData] = useState({
@@ -16,9 +17,9 @@ const SignUpPage = () => {
     setSignUpData({ ...signUpData, [id]: value });
   };
 
-  const handleSignUpSubmit = () => {
-    console.log(signUpData);
-    alert("회원가입 하기"); // TODO: add api call for sign up
+  const handleSignUpSubmit = async (e) => {
+    e.preventDefault(); // to prevent reloading the page
+    signUp(signUpData);
   };
 
   return (
