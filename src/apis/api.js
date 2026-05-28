@@ -20,6 +20,16 @@ export const signUp = async (data) => {
   return response;
 };
 
+export const getUser = async () => {
+  const response = await instanceWithToken.get("/account/info/");
+  if (response.status === 200) {
+    console.log("GET USER SUCCESS");
+  } else {
+    console.log("[ERROR] error while getting user");
+  }
+  return response.data;
+};
+
 export const getPosts = async () => {
   const response = await instance.get("/post/");
   return response.data;
@@ -62,7 +72,15 @@ export const deletePost = async (id, navigate) => {
 };
 
 // 과제!!
-export const likePost = async (postId) => {};
+export const likePost = async (postId) => {
+  const response = await instanceWithToken.post(`/post/${postId}/like/`);
+  if (response.status === 200) {
+    console.log("LIKE SUCCESS");
+    window.location.reload();
+  } else {
+    console.log("[ERROR] error while creating like");
+  }
+};
 
 // Tag 관련 API들
 export const getTags = async () => {
@@ -115,14 +133,4 @@ export const deleteComment = async (id) => {
   } else {
     console.log("[ERROR] error while deleting comment");
   }
-};
-
-export const getUser = async () => {
-  const response = await instanceWithToken.get("/account/info/");
-  if (response.status === 200) {
-    console.log("GET USER SUCCESS");
-  } else {
-    console.log("[ERROR] error while getting user");
-  }
-  return response.data;
 };
