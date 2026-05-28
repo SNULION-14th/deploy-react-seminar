@@ -13,9 +13,10 @@ const SignInPage = () => {
     setSignInData({ ...signInData, [id]: value });
   };
 
-  const handleSignInSubmit = async (e) => {
-    e.preventDefault(); // to prevent reloading the page
-    signIn(signInData);
+  const handleSignInSubmit = () => {
+    console.log(signInData);
+    alert("로그인 완 료!");
+    // add api call for sign in here
   };
 
   return (

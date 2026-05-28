@@ -42,6 +42,10 @@ const HomePage = () => {
     } else {
       const activeTag = innerText.substring(1);
       setSearchValue(activeTag);
+      const newPosts = posts.filter((post) =>
+        post.tags.find((tag) => tag.content === activeTag),
+      );
+      setPostList(newPosts);
     }
   };
 
