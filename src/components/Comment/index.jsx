@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import CommentElement from "./CommentElement";
-import { getComments, createComment } from "../../apis/api";
+import { getComments, createComment, deleteComment } from "../../apis/api";
 
 const Comment = ({ postId }) => {
   const [commentList, setCommentList] = useState([]); // state for comments
@@ -20,16 +20,15 @@ const Comment = ({ postId }) => {
       post: postId,
       content: newContent,
     });
-    console.log({
-      post: postId,
-      content: newContent,
-    });
     setNewContent("");
   };
 
-  const handleCommentDelete = (commentId) => {
+  const handleCommentDelete = async (commentId) => {
+    const confirmDelete = window.confirm("정말 삭제하시겠습니까?");
+    if (!confirmDelete) return;
+
+    await deleteComment(commentId);
     console.log("comment: ", commentId);
-    setCommentList(commentList.filter((comment) => comment.id !== commentId)); // TODO: add api call for deleting comment
   };
 
   return (
