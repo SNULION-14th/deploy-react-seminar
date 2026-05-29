@@ -1,17 +1,23 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { getCookie, removeCookie } from "../../utils/cookie";
 
 import lion from "../../assets/images/lion.jpeg";
 
 const Header = () => {
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(false); // 로그인 여부 상태, 우선 false로 초기화
 
+  // getCookie를 통해 access token을 가져올 수 있으면 로그인 된 것으로 설정
   useEffect(() => {
-    // TODO: 이후 api 연결 시 유효한 token이 있다면 setIsUserLoggedIn(true)로 상태 변경하는 코드 작성
+    const loggedIn = getCookie("access_token") ? true : false;
+    setIsUserLoggedIn(loggedIn);
   }, []);
 
+  // 로그아웃 시 cookie에서 access_token, refresh_token 제거
   const handleSignOut = () => {
-    // TODO: 이후 api 연결 시 token 제거
+    removeCookie("access_token");
+    removeCookie("refresh_token");
+    window.location.href = "/"; // 새로고침 - 로그아웃 되었다는 것을 인지시켜주기 위해
   };
 
   return (
@@ -21,9 +27,15 @@ const Header = () => {
         <div className="text-white text-xl">SNULION BLOG</div>
       </Link>
       <div className="flex">
-        {isUserLoggedIn ? 
-          <Link to="/" className="mr-10 p-3 uppercase text-lg">sign out</Link>
-          :
+        {isUserLoggedIn ? (
+          <Link
+            to="/"
+            onClick={handleSignOut}
+            className="mr-10 p-3 uppercase text-lg"
+          >
+            sign out
+          </Link>
+        ) : (
           <>
             <Link to="/signin" className="mr-10 p-3 uppercase text-lg">
               sign in
@@ -32,7 +44,7 @@ const Header = () => {
               sign up
             </Link>
           </>
-        }
+        )}
       </div>
     </div>
   );
